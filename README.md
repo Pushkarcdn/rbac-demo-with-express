@@ -8,6 +8,7 @@
   - [Role Management](#role-management)
   - [Permission Management](#permission-management)
   - [Role-Permission Assignment](#role-permission-assignment)
+- [RBAC Demonstration](#rbac-demonstration)
 
 ## Auth Features
 
