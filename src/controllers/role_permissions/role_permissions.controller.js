@@ -47,7 +47,7 @@ const getRolePermissionById = async (req, res, next) => {
   try {
     const rolePermission = await role_permissions.findById(req.params.id);
     if (!rolePermission) {
-      throw new NotFoundException("Role permission not found!");
+      throw new NotFoundException("Unauthorized");
     }
     return successResponse(
       res,
@@ -78,7 +78,7 @@ const updateRolePermission = async (req, res, next) => {
       },
     );
     if (!rolePermission) {
-      throw new NotFoundException("Role permission not found!");
+      throw new NotFoundException("Unauthorized");
     }
     return successResponse(
       res,
@@ -96,7 +96,7 @@ const deleteRolePermission = async (req, res, next) => {
     // check if record exist
     const rolePermission = await role_permissions.findById(req.params.id);
     if (!rolePermission) {
-      throw new NotFoundException("Role permission not found!");
+      throw new NotFoundException("Unauthorized");
     }
     await role_permissions.findByIdAndDelete(req.params.id);
     return successResponse(
