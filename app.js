@@ -70,11 +70,8 @@ app.get("/", (req, res, next) => {
   try {
     res.send({
       status: 200,
-      message: `Hello, NeoX Backend is up!`,
+      message: `Hello, Backend is up!`,
       source: "/ [GET]",
-      ip: req.ip || "Not Found!",
-      ips: req.ips || "Not Found!",
-      clientIp: req.clientIp || "Not Found!",
     });
   } catch (error) {
     next(error);
