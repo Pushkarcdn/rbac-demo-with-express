@@ -23,8 +23,28 @@ export default [
     methods: ["GET"],
     route: "/api/auth/logout",
   },
-  // {
-  //   methods: ["GET"],
-  //   route: "/api/auth/me",
-  // },
+  {
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    route: "/api/roles",
+  },
+  {
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    route: "/api/roles/:id",
+  },
+  {
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    route: "/api/permissions",
+  },
+  {
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    route: "/api/permissions/:id",
+  },
+  {
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    route: "/api/role-permissions",
+  },
+  {
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    route: "/api/role-permissions/:id",
+  },
 ];

@@ -17,7 +17,7 @@ const signAccessToken = (user) => {
       (err, token) => {
         if (err) {
           console.error("Error signing access token: ", err.message);
-          reject(new Error("Failed to sign access token"));
+          reject(new Error("Failed to sign access token!"));
           return;
         }
         resolve(token);
@@ -30,7 +30,7 @@ const verifyAccessToken = (token) => {
   return new Promise((resolve, reject) => {
     jwt.verify(token, jwtConfig.accessTokenSecret, (err, payload) => {
       if (err) {
-        reject(new Error("Failed to verify access token"));
+        reject(new Error("Failed to verify access token!"));
         return;
       }
       resolve(payload);

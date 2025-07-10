@@ -6,7 +6,7 @@ const { finance_records } = models;
 
 const getFinanceRecords = async (req, res, next) => {
   try {
-    await authorizeUser(req.user, "view_finance_records");
+    await authorizeUser(req.user, "view_finance_record");
     const financeRecords = await finance_records.find();
     return successResponse(
       res,
@@ -21,6 +21,7 @@ const getFinanceRecords = async (req, res, next) => {
 
 const createFinanceRecord = async (req, res, next) => {
   try {
+    await authorizeUser(req.user, "create_finance_record");
     const financeRecord = await finance_records.create(req.body);
     return successResponse(
       res,
@@ -35,6 +36,7 @@ const createFinanceRecord = async (req, res, next) => {
 
 const getFinanceRecordById = async (req, res, next) => {
   try {
+    await authorizeUser(req.user, "view_finance_record");
     const financeRecord = await finance_records.findById(req.params.id);
     return successResponse(
       res,
@@ -49,6 +51,7 @@ const getFinanceRecordById = async (req, res, next) => {
 
 const updateFinanceRecord = async (req, res, next) => {
   try {
+    await authorizeUser(req.user, "edit_finance_record");
     const financeRecord = await finance_records.findByIdAndUpdate(
       req.params.id,
       req.body,
@@ -69,6 +72,7 @@ const updateFinanceRecord = async (req, res, next) => {
 
 const deleteFinanceRecord = async (req, res, next) => {
   try {
+    await authorizeUser(req.user, "delete_finance_record");
     await finance_records.findByIdAndDelete(req.params.id);
     return successResponse(
       res,
