@@ -24,9 +24,9 @@
 - JWT for authentication
 - bcrypt for password hashing
 
-## Project Structure
+## Database Schema
 
-![Project Structure](./public/database-schema.png)
+![Database Schema](./public/database-schema.png)
 
 ## API Documentation
 
@@ -41,6 +41,12 @@ The authentication flow consists of the following steps:
 5. **Create Permissions**: Create permissions for specific actions
 6. **Assign Permissions to Roles**: Link permissions to roles using the role_permissions table
 7. **Access the Protected Data**: Try to access the data that is protected and requires specific role
+
+### Api base url:
+
+```json
+"https://training.pushkar.live"
+```
 
 #### 1. Create a Role
 
