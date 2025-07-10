@@ -1,9 +1,6 @@
 import successResponse from "../../utils/responses/successResponse.js";
 import models from "../../models/index.js";
-import {
-  ConflictException,
-  NotFoundException,
-} from "../../exceptions/index.js";
+import { AuthException, ConflictException } from "../../exceptions/index.js";
 
 const { role_permissions } = models;
 
@@ -47,7 +44,7 @@ const getRolePermissionById = async (req, res, next) => {
   try {
     const rolePermission = await role_permissions.findById(req.params.id);
     if (!rolePermission) {
-      throw new NotFoundException("Unauthorized");
+      throw new AuthException("Unauthorized");
     }
     return successResponse(
       res,
@@ -78,7 +75,7 @@ const updateRolePermission = async (req, res, next) => {
       },
     );
     if (!rolePermission) {
-      throw new NotFoundException("Unauthorized");
+      throw new AuthException("Unauthorized");
     }
     return successResponse(
       res,
@@ -96,7 +93,7 @@ const deleteRolePermission = async (req, res, next) => {
     // check if record exist
     const rolePermission = await role_permissions.findById(req.params.id);
     if (!rolePermission) {
-      throw new NotFoundException("Unauthorized");
+      throw new AuthException("Unauthorized");
     }
     await role_permissions.findByIdAndDelete(req.params.id);
     return successResponse(
