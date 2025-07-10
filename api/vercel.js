@@ -1,6 +1,6 @@
 // This file serves as a serverless function entry point for Vercel
 // Import the Express app instance from the server.js file
-import app from "../server/server.js";
+import app from "../app.js";
 
 // Export a function that handles the serverless request
 export default async function handler(req, res) {
