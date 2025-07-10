@@ -1,0 +1,24 @@
+{
+  "env": {
+    "es6": true,
+    "node": true
+  },
+  "globals": {
+    "process": true
+  },
+  "plugins": ["prettier"],
+  "extends": ["eslint:recommended", "plugin:prettier/recommended"],
+  "parserOptions": {
+    "ecmaVersion": "latest"
+  },
+  "rules": {
+    "no-unused-vars": "warn",
+    "no-unused-labels": "warn",
+    "no-unused-expressions": "error",
+    "no-undef": "error",
+    "semi": ["warn", "always"]
+  },
+  "settings": {
+    "eslint.validate": ["javascript"]
+  }
+}

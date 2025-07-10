@@ -1,0 +1,44 @@
+{
+  "name": "training",
+  "type": "module",
+  "version": "0.0.1",
+  "description": "",
+  "license": "ISC",
+  "author": "Pushkar Kumar Sah | www.pushkar.live",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev:local": "cross-env NODE_ENV=local nodemon index.js",
+    "dev:server": "cross-env NODE_ENV=development node index.js",
+    "start": "cross-env NODE_ENV=production node index.js"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cloudinary": "^2.7.0",
+    "compression": "^1.8.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "cross-env": "^7.0.3",
+    "dotenv": "^16.5.0",
+    "ejs": "^3.1.10",
+    "express": "^5.1.0",
+    "express-http-context": "^2.0.1",
+    "express-rate-limit": "^7.5.1",
+    "helmet": "^8.1.0",
+    "hpp": "^0.2.3",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.16.0",
+    "morgan": "^1.10.0",
+    "multer": "^2.0.1",
+    "node-match-path": "^0.6.3",
+    "nodemailer": "^7.0.3",
+    "part": "^0.1.1",
+    "streamifier": "^0.1.1",
+    "url": "^0.11.4"
+  },
+  "devDependencies": {
+    "eslint": "^9.29.0",
+    "nodemon": "^3.1.10",
+    "prettier": "^3.6.1"
+  }
+}
