@@ -24,6 +24,10 @@
 - JWT for authentication
 - bcrypt for password hashing
 
+## Project Structure
+
+![Project Structure](./public/database-schema.png)
+
 ## API Documentation
 
 ### Authentication Flow
