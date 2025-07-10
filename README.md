@@ -306,3 +306,187 @@ The JWT token is automatically sent via cookies, so no additional headers are re
 5. Login with the user credentials using the `/api/auth/login` endpoint
 6. Access protected resources using the JWT token (automatically sent via cookies)
 7. Check user details using the `/api/auth/me` endpoint
+
+## RBAC Demonstration
+
+This section demonstrates how Role-Based Access Control (RBAC) is implemented for the Finance Records API endpoints. The system has currently three roles (Employee, Manager, and Admin) with different permissions.
+
+### Role and Permission Matrix
+
+| Role     | Permissions                                |
+| -------- | ------------------------------------------ |
+| Employee | view_finance_record, create_finance_record |
+| Manager  | view_finance_record, edit_finance_record   |
+| Admin    | view_finance_record, delete_finance_record |
+
+### Finance Records API Endpoints
+
+#### View Finance Records (All Roles)
+
+All roles (Employee, Manager, Admin) can access this endpoint:
+
+**Endpoint:** `GET /api/finance-records`
+
+**Required Permission:** `view_finance_record`
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "message": "Finance records fetched successfully!",
+  "data": [
+    {
+      "_id": "65f8a7b3c4e9a8d7b6c5a4b8",
+      "date": "2025-02-02T00:00:00.000Z",
+      "amount": 200000,
+      "category": "Salary",
+      "payment_method": "Cash",
+      "createdAt": "2023-09-18T10:30:45.123Z",
+      "updatedAt": "2023-09-18T10:30:45.123Z"
+    }
+  ],
+  "source": "finance_records"
+}
+```
+
+#### Create Finance Record (Employee)
+
+Only users with the Employee role can create new finance records:
+
+**Endpoint:** `POST /api/finance-records`
+
+**Required Permission:** `create_finance_record`
+
+**Request Body:**
+
+```json
+{
+  "amount": 200000,
+  "category": "salary",
+  "payment_method": "Cash"
+}
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "message": "Finance record created successfully!",
+  "data": {
+    "_id": "65f8a7b3c4e9a8d7b6c5a4b8",
+    "date": "2025-02-02",
+    "amount": 200000,
+    "category": "Salary",
+    "payment_method": "Cash",
+    "payment_status": "Completed",
+    "createdAt": "2023-09-18T10:30:45.123Z",
+    "updatedAt": "2023-09-18T10:30:45.123Z"
+  },
+  "source": "finance_records"
+}
+```
+
+#### Update Finance Record (Manager)
+
+Only users with the Manager role can update existing finance records:
+
+**Endpoint:** `PUT /api/finance-records/:id`
+
+**Required Permission:** `edit_finance_record`
+
+**Request Body:**
+
+```json
+{
+  "amount": 1500
+}
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "message": "Finance record updated successfully!",
+  "data": {
+    "_id": "65f8a7b3c4e9a8d7b6c5a4b8",
+    "amount": 1500,
+    "createdAt": "2023-09-18T10:30:45.123Z",
+    "updatedAt": "2023-09-18T10:31:15.456Z"
+  },
+  "source": "finance_records"
+}
+```
+
+#### Delete Finance Record (Admin)
+
+Only users with the Admin role can delete finance records:
+
+**Endpoint:** `DELETE /api/finance-records/:id`
+
+**Required Permission:** `delete_finance_record`
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "message": "Finance record deleted successfully!",
+  "data": {},
+  "source": "finance_records"
+}
+```
+
+### Setting Up RBAC for Finance Records
+
+1. Create the three roles (Employee, Manager, Admin):
+
+   ```
+   POST /api/roles { "role_name": "Employee" }
+
+   POST /api/roles { "role_name": "Manager" }
+
+   POST /api/roles { "role_name": "Admin" }
+   ```
+
+2. Create the required permissions:
+
+   ```
+   POST /api/permissions { "permission_name": "view_finance_record" }
+
+   POST /api/permissions { "permission_name": "create_finance_record" }
+
+   POST /api/permissions { "permission_name": "edit_finance_record" }
+
+   POST /api/permissions { "permission_name": "delete_finance_record" }
+   ```
+
+3. Assign permissions to roles:
+
+   ```
+   # Employee permissions
+
+   POST /api/role-permissions { "role_id": "employee_role_id", "permission_id": "view_finance_record_id" }
+
+   POST /api/role-permissions { "role_id": "employee_role_id", "permission_id": "create_finance_record_id" }
+
+
+
+   # Manager permissions
+
+   POST /api/role-permissions { "role_id": "manager_role_id", "permission_id": "view_finance_record_id" }
+
+   POST /api/role-permissions { "role_id": "manager_role_id", "permission_id": "edit_finance_record_id" }
+
+
+
+   # Admin permissions
+
+   POST /api/role-permissions { "role_id": "admin_role_id", "permission_id": "view_finance_record_id" }
+
+   POST /api/role-permissions { "role_id": "admin_role_id", "permission_id": "delete_finance_record_id" }
+   ```
+
+4. We can register users with different roles and test access to the finance records endpoints.
