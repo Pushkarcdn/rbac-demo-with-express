@@ -47,4 +47,8 @@ export default [
     methods: ["GET", "POST", "PUT", "DELETE"],
     route: "/api/role-permissions/:id",
   },
+  {
+    methods: ["GET"],
+    route: "/api/set-dummy-data",
+  },
 ];

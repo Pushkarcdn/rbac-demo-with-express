@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import { jwtConfig } from "../configs/env.config.js";
+import { AuthException } from "../exceptions/index.js";
 
 const signAccessToken = (user) => {
   return new Promise((resolve, reject) => {
@@ -30,8 +31,9 @@ const verifyAccessToken = (token) => {
   return new Promise((resolve, reject) => {
     jwt.verify(token, jwtConfig.accessTokenSecret, (err, payload) => {
       if (err) {
-        reject(new Error("Failed to verify access token!"));
-        return;
+        throw new AuthException("unauthorized", "auth");
+        // reject(new Error("Failed to verify access token!"));
+        // return;
       }
       resolve(payload);
     });

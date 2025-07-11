@@ -67,3 +67,7 @@ pids
 .env.*
 *.env
 *.env.*
+
+
+# test coverage
+coverage/

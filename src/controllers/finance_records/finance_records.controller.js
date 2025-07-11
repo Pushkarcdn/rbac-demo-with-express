@@ -1,6 +1,7 @@
 import successResponse from "../../utils/responses/successResponse.js";
 import models from "../../models/index.js";
 import { authorizeUser } from "../../middlewares/auth.middleware.js";
+import { NotFoundException } from "../../exceptions/index.js";
 
 const { finance_records } = models;
 
@@ -73,6 +74,8 @@ const updateFinanceRecord = async (req, res, next) => {
 const deleteFinanceRecord = async (req, res, next) => {
   try {
     await authorizeUser(req.user, "delete_finance_record");
+    const financeRecord = await finance_records.findById(req.params.id);
+    if (!financeRecord) throw new NotFoundException("Finance record not found");
     await finance_records.findByIdAndDelete(req.params.id);
     return successResponse(
       res,

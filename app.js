@@ -19,6 +19,12 @@ import errorResponse from "./src/utils/responses/errorResponse.js";
 import { frontend } from "./src/configs/env.config.js";
 import { limiter } from "./src/configs/server.config.js";
 
+// Importing controllers only for test environment
+import SignupController from "./src/controllers/auth/signup.controller.js";
+import SigninController from "./src/controllers/auth/signin.controller.js";
+import SignoutController from "./src/controllers/auth/signout.controller.js";
+import ProfileController from "./src/controllers/auth/profile.controller.js";
+
 const app = express();
 const router = express.Router();
 
@@ -78,7 +84,17 @@ app.get("/", (req, res, next) => {
   }
 });
 
-app.use("/api", limiter, await routes(router));
+// For test environment, registering routes directly
+if (process.env.NODE_ENV === "test") {
+  // Auth routes
+  app.post("/api/auth/register", SignupController.registerUser);
+  app.post("/api/auth/login", SigninController.loginUser);
+  app.get("/api/auth/logout", SignoutController.logoutUser);
+  app.get("/api/auth/me", ProfileController.currentUser);
+} else {
+  // For non-test environments, use the dynamic route loading
+  app.use("/api", limiter, await routes(router));
+}
 
 /**
  * 404 Error Handler
