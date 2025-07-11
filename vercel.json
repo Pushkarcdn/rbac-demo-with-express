@@ -10,19 +10,7 @@
   "functions": {
     "api/vercel.js": {
       "includeFiles": "**/*",
-      "excludeFiles": [
-        "**/*.test.js",
-        "**/node_modules/mongodb-memory-server/**",
-        "**/node_modules/@jest/**",
-        "**/node_modules/jest/**",
-        "**/node_modules/eslint/**",
-        "**/node_modules/prettier/**",
-        "**/node_modules/nodemon/**",
-        "**/node_modules/supertest/**",
-        "**/node_modules/@babel/**",
-        "coverage/**",
-        "tests/**"
-      ]
+      "excludeFiles": "**/node_modules/mongodb-memory-server/**"
     }
   }
 }
