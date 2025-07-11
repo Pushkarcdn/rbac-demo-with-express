@@ -81,24 +81,22 @@ app.get("/", (req, res, next) => {
 // For test environment, registering routes directly
 if (process.env.NODE_ENV === "test") {
   // Importing controllers only for test environment
-  const SignupController = await import(
-    "./src/controllers/auth/signup.controller.js"
-  ).then((m) => m.default);
-  const SigninController = await import(
-    "./src/controllers/auth/signin.controller.js"
-  ).then((m) => m.default);
-  const SignoutController = await import(
-    "./src/controllers/auth/signout.controller.js"
-  ).then((m) => m.default);
-  const ProfileController = await import(
-    "./src/controllers/auth/profile.controller.js"
-  ).then((m) => m.default);
-
-  // Auth routes
-  app.post("/api/auth/register", SignupController.registerUser);
-  app.post("/api/auth/login", SigninController.loginUser);
-  app.get("/api/auth/logout", SignoutController.logoutUser);
-  app.get("/api/auth/me", ProfileController.currentUser);
+  // const SignupController = await import(
+  //   "./src/controllers/auth/signup.controller.js"
+  // ).then((m) => m.default);
+  // const SigninController = await import(
+  //   "./src/controllers/auth/signin.controller.js"
+  // ).then((m) => m.default);
+  // const SignoutController = await import(
+  //   "./src/controllers/auth/signout.controller.js"
+  // ).then((m) => m.default);
+  // const ProfileController = await import(
+  //   "./src/controllers/auth/profile.controller.js"
+  // ).then((m) => m.default);
+  // app.post("/api/auth/register", SignupController.registerUser);
+  // app.post("/api/auth/login", SigninController.loginUser);
+  // app.get("/api/auth/logout", SignoutController.logoutUser);
+  // app.get("/api/auth/me", ProfileController.currentUser);
 } else {
   // For non-test environments, use the dynamic route loading
   app.use("/api", limiter, await routes(router));
