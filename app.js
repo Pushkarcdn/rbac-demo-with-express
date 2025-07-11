@@ -19,12 +19,6 @@ import errorResponse from "./src/utils/responses/errorResponse.js";
 import { frontend } from "./src/configs/env.config.js";
 import { limiter } from "./src/configs/server.config.js";
 
-// Importing controllers only for test environment
-import SignupController from "./src/controllers/auth/signup.controller.js";
-import SigninController from "./src/controllers/auth/signin.controller.js";
-import SignoutController from "./src/controllers/auth/signout.controller.js";
-import ProfileController from "./src/controllers/auth/profile.controller.js";
-
 const app = express();
 const router = express.Router();
 
@@ -86,6 +80,20 @@ app.get("/", (req, res, next) => {
 
 // For test environment, registering routes directly
 if (process.env.NODE_ENV === "test") {
+  // Importing controllers only for test environment
+  const SignupController = await import(
+    "./src/controllers/auth/signup.controller.js"
+  ).then((m) => m.default);
+  const SigninController = await import(
+    "./src/controllers/auth/signin.controller.js"
+  ).then((m) => m.default);
+  const SignoutController = await import(
+    "./src/controllers/auth/signout.controller.js"
+  ).then((m) => m.default);
+  const ProfileController = await import(
+    "./src/controllers/auth/profile.controller.js"
+  ).then((m) => m.default);
+
   // Auth routes
   app.post("/api/auth/register", SignupController.registerUser);
   app.post("/api/auth/login", SigninController.loginUser);
