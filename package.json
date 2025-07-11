@@ -12,7 +12,8 @@
     "test:watch": "NODE_ENV=test node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
     "dev:local": "cross-env NODE_ENV=local nodemon index.js",
     "dev:server": "cross-env NODE_ENV=development node index.js",
-    "start": "cross-env NODE_ENV=production node index.js"
+    "start": "cross-env NODE_ENV=production node index.js",
+    "build": "npm install --omit=dev"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
@@ -29,7 +30,6 @@
     "helmet": "^8.1.0",
     "hpp": "^0.2.3",
     "jsonwebtoken": "^9.0.2",
-    "mongodb-memory-server": "^10.1.4",
     "mongoose": "^8.16.0",
     "morgan": "^1.10.0",
     "multer": "^2.0.1",
@@ -45,6 +45,7 @@
     "@jest/globals": "^30.0.4",
     "eslint": "^9.29.0",
     "jest": "^30.0.4",
+    "mongodb-memory-server": "^10.1.4",
     "nodemon": "^3.1.10",
     "prettier": "^3.6.1",
     "supertest": "^7.1.3"
