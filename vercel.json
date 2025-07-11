@@ -9,7 +9,8 @@
   ],
   "functions": {
     "api/vercel.js": {
-      "includeFiles": "**/*"
+      "includeFiles": "**/*",
+      "excludeFiles": "**/*.test.js"
     }
   }
 }
