@@ -1,5 +1,6 @@
 ## Table of Contents
 
+- [How to run this project](#how-to-run-this-project)
 - [Features](#features)
 - [Technologies](#technologies)
 - [Getting Started](#getting-started)
@@ -9,6 +10,35 @@
   - [Permission Management](#permission-management)
   - [Role-Permission Assignment](#role-permission-assignment)
 - [RBAC Demonstration](#rbac-demonstration)
+
+## How to run this project
+
+### Requirements
+
+- Node v20
+- npm v11
+
+### Setup Instructions
+
+1. Clone the project:
+
+   `git clone https://github.com/Pushkarcdn/pushkar-training.git`
+
+2. Go to to the project's root directory
+
+   `cd pushkar-training`
+
+3. Copy the env file at project root
+
+4. Install dependencies using:
+
+   `npm install`
+
+5. Start the server using:
+
+   `npm run dev:local`
+
+6. The backend can be accessed at http://localhost:4000 (port can be changed through env file)
 
 ## Auth Features
 
