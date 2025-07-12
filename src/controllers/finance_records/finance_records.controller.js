@@ -53,7 +53,9 @@ const getFinanceRecordById = async (req, res, next) => {
 const updateFinanceRecord = async (req, res, next) => {
   try {
     await authorizeUser(req.user, "edit_finance_record");
-    const financeRecord = await finance_records.findByIdAndUpdate(
+    let financeRecord = await finance_records.findById(req.params.id);
+    if (!financeRecord) throw new NotFoundException("Finance record not found");
+    financeRecord = await finance_records.findByIdAndUpdate(
       req.params.id,
       req.body,
       {
