@@ -43,22 +43,70 @@ const authenticateUser = async (req, res, next) => {
   }
 };
 
-export const authorizeUser = async (user, permission_name) => {
+export const authorizeUser = async (req, permission_name) => {
   try {
+    // extracting user and redis client from request object
+    const user = req.user;
+    const redis = req.redis;
+
+    // logging for debugging purposes
     console.log(user?.username + " is trying to access " + permission_name);
 
+    // extracting role id from user object
     const roleId = user.role_id;
 
-    const role = await roles.findById(roleId);
+    // trying to get role from Redis cache first
+    const roleKey = `role:${roleId}`;
+    let role = await redis.get(roleKey);
+
+    if (!role) {
+      // if not found in cache, let's fetch from database
+      role = await roles.findById(roleId);
+
+      // then storing in Redis with 10 minute expiration
+      await redis.set(roleKey, JSON.stringify(role), { EX: 600 });
+    } else {
+      role = JSON.parse(role);
+    }
 
     if (role.role_name === "admin") return;
 
-    const permission = await permissions.findOne({ permission_name });
+    // trying to get permission from Redis cache
+    const permissionKey = `permission:${permission_name}`;
+    let permission = await redis.get(permissionKey);
 
-    const rolePermission = await role_permissions.findOne({
-      role_id: roleId,
-      permission_id: permission._id,
-    });
+    if (!permission) {
+      // if not found in cache, let's fetch from database
+      permission = await permissions.findOne({ permission_name });
+
+      // then storing in Redis with 10 minute expiration
+      await redis.set(permissionKey, JSON.stringify(permission), { EX: 600 });
+    } else {
+      permission = JSON.parse(permission);
+    }
+
+    // trying to get role permission from Redis cache
+    const rolePermKey = `rolePermission:${roleId}:${permission._id}`;
+    let rolePermission = await redis.get(rolePermKey);
+
+    if (!rolePermission) {
+      // if not found in cache, let's fetch from database
+      rolePermission = await role_permissions.findOne({
+        role_id: roleId,
+        permission_id: permission._id,
+      });
+
+      // then storing in Redis with 10 minute expiration (null check to avoid storing null)
+      if (rolePermission) {
+        await redis.set(rolePermKey, JSON.stringify(rolePermission), {
+          EX: 600,
+        });
+      } else {
+        await redis.set(rolePermKey, JSON.stringify(null), { EX: 600 });
+      }
+    } else {
+      rolePermission = JSON.parse(rolePermission);
+    }
 
     if (!rolePermission) throw new AuthException("unauthorized", "auth");
 

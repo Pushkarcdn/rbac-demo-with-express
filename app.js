@@ -8,6 +8,7 @@ import cookieParser from "cookie-parser";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 import httpContext from "express-http-context";
+import redisClient from "./src/lib/redis.js";
 
 import { connectDB } from "./src/configs/database.config.js";
 import routes from "./src/routes/index.js";
@@ -62,6 +63,14 @@ if (
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 app.use(express.static(join(__dirname, "./public"))); // Serve static frontend files
+
+// Middleware to attach redis client to request object
+// So that it can be imported from anywhere through the request object
+// mainly imported by auth.middleware.js using: req.redis
+app.use((req, res, next) => {
+  req.redis = redisClient;
+  next();
+});
 
 connectDB();
 
