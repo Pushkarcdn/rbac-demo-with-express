@@ -57,6 +57,27 @@ const getRolePermissionById = async (req, res, next) => {
   }
 };
 
+const getRolePermissionByRoleId = async (req, res, next) => {
+  try {
+    const rolePermission = await role_permissions
+      .find({
+        role_id: req.params.roleId,
+      })
+      .populate("permission_id")
+      .populate("role_id")
+      .lean();
+
+    return successResponse(
+      res,
+      rolePermission,
+      "Role permission fetched successfully!",
+      "rolePermissions",
+    );
+  } catch (error) {
+    next(error);
+  }
+};
+
 const updateRolePermission = async (req, res, next) => {
   try {
     // check if same record exist
@@ -111,6 +132,7 @@ export default {
   getRolePermissions,
   createRolePermission,
   getRolePermissionById,
+  getRolePermissionByRoleId,
   updateRolePermission,
   deleteRolePermission,
 };

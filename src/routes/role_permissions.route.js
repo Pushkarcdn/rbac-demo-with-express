@@ -14,6 +14,10 @@ export default (router) => {
     .get(RolePermissionsController.getRolePermissionById);
 
   router
+    .route("/role-permissions/role/:roleId")
+    .get(RolePermissionsController.getRolePermissionByRoleId);
+
+  router
     .route("/role-permissions/:id")
     .put(RolePermissionsController.updateRolePermission);
 

@@ -43,15 +43,11 @@ const updateUser = async (req, res, next) => {
     const existingUser = await users.findOne({
       username: req.body.username,
     });
-    if (existingUser) {
-      throw new ConflictException("User already exists!");
-    }
-    const user = await users.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-    });
-    if (!user) throw new NotFoundException("User not found!", "users");
+    if (!existingUser) throw new NotFoundException("User not found!", "users");
 
-    return successResponse(res, user, "User updated successfully!", "users");
+    await users.findByIdAndUpdate(req.params.id, req.body, {});
+
+    return successResponse(res, {}, "User updated successfully!", "users");
   } catch (error) {
     next(error);
   }
