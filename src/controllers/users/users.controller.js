@@ -9,10 +9,10 @@ const { users } = models;
 
 const getUsers = async (req, res, next) => {
   try {
-    let usersList = await users.find().populate("role_id");
+    let usersList = await users.find().populate("role_id").lean();
 
     usersList = usersList.filter(
-      (user) => user.role_id.role_name !== "SuperAdmin",
+      (user) => user?.role_id?.role_name !== "SuperAdmin",
     );
 
     return successResponse(

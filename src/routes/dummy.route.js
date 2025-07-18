@@ -97,7 +97,7 @@ const setDummyData = async (req, res, next) => {
         full_name: "Admin 1",
         email: "admin@gmail.com",
         password_hash: await hashPassword("Admin@123"),
-        role_id: "68709d063a2de9d12a67b138", // Admin role
+        role_id: "68709d063a2de9d12a67b139", // Admin role
       },
       {
         username: "manager1",
