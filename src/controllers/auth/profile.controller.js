@@ -8,7 +8,7 @@ const currentUser = async (req, res, next) => {
 
     let userData = req?.user;
 
-    userData = sanitizePayload(userData, ["password"]);
+    userData = sanitizePayload(userData, ["password", "password_hash"]);
 
     return successResponse(res, userData, "User fetched successfully!", "auth");
   } catch (err) {

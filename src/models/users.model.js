@@ -29,6 +29,7 @@ const userSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Roles",
       required: true,
+      onDelete: "CASCADE",
     },
   },
   { timestamps: true },

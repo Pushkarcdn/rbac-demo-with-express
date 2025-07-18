@@ -9,7 +9,10 @@ const { roles } = models;
 
 const getRoles = async (req, res, next) => {
   try {
-    const rolesList = await roles.find();
+    let rolesList = await roles.find();
+
+    rolesList = rolesList.filter((role) => role.role_name !== "SuperAdmin");
+
     return successResponse(
       res,
       rolesList,

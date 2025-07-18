@@ -31,7 +31,11 @@ const authenticateUser = async (req, res, next) => {
     const accessToken = req.cookies.accessToken;
     const payload = await verifyAccessToken(accessToken);
 
-    const user = await users.findById(payload.sub);
+    const user = await users.findById(payload.sub).populate({
+      path: "role_id",
+      model: "Roles",
+      select: ["id", "role_name"],
+    });
 
     if (!user) throw new AuthException("unauthorized", "auth");
 
@@ -48,6 +52,8 @@ export const authorizeUser = async (req, permission_name) => {
     // extracting user and redis client from request object
     const user = req.user;
     const redis = req.redis;
+
+    if (user.role_id.role_name === "SuperAdmin") return;
 
     // logging for debugging purposes
     console.log(user?.username + " is trying to access " + permission_name);

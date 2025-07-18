@@ -8,7 +8,8 @@ const { finance_records } = models;
 const getFinanceRecords = async (req, res, next) => {
   try {
     await authorizeUser(req, "view_finance_record");
-    const financeRecords = await finance_records.find();
+    const financeRecords = await finance_records.find().sort({ date: "desc" });
+
     return successResponse(
       res,
       financeRecords,

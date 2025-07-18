@@ -33,10 +33,6 @@ app.use(compression()); // Enable response compression for faster API responses
 app.use(cookieParser()); // Parse cookies from HTTP requests
 app.use(httpContext.middleware); // Attach request-scoped data (context)
 
-app.use(authMiddleware); // Global authentication middleware
-
-app.use(upload); // Upload middleware
-
 if (
   process.env.NODE_ENV === "local" ||
   process.env.NODE_ENV === "development"
@@ -59,6 +55,10 @@ if (
   );
   app.use(morgan("combined", {})); // More detailed logging for production
 }
+
+app.use(authMiddleware); // Global authentication middleware
+
+app.use(upload); // Upload middleware
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
