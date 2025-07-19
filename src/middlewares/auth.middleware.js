@@ -3,6 +3,7 @@ import publicPermission from "../configs/public.permissions.js";
 import { verifyAccessToken } from "../lib/jwt.js";
 import { AuthException } from "../exceptions/index.js";
 import models from "../models/index.js";
+import { logAuditEvent } from "../lib/auditLogger.js";
 
 const { users, roles, role_permissions, permissions } = models;
 
@@ -14,11 +15,13 @@ const authMiddleware = (req, res, next) => {
       return matches && isMethodMatch;
     });
 
-    if (isPublicRoute) {
-      next();
-    } else {
-      authenticateUser(req, res, next);
-    }
+    // if (isPublicRoute) {
+    //   next();
+    // } else {
+    //   authenticateUser(req, res, next, isPublicRoute);
+    // }
+
+    authenticateUser(req, res, next, isPublicRoute);
   } catch (err) {
     next(err);
   }
@@ -26,23 +29,82 @@ const authMiddleware = (req, res, next) => {
 
 export default authMiddleware;
 
-const authenticateUser = async (req, res, next) => {
+const authenticateUser = async (req, res, next, isPublicRoute) => {
   try {
     const accessToken = req.cookies.accessToken;
     const payload = await verifyAccessToken(accessToken);
 
-    const user = await users.findById(payload.sub).populate({
+    const user = await users.findById(payload?.sub).populate({
       path: "role_id",
       model: "Roles",
       select: ["id", "role_name"],
     });
 
-    if (!user) throw new AuthException("unauthorized", "auth");
+    if (!user) {
+      // Log unauthorized access attempt
+      await logAuditEvent({
+        user_id: payload?.sub || "000000000000000000000000", // Use a placeholder ID if no user
+        event_type: "ACCESS_DENIED",
+        resource: "AUTHENTICATION",
+        endpoint: req.path,
+        details: {
+          method: req.method,
+          reason: "User not found",
+          token_payload: payload,
+        },
+        ip_address: req.ip,
+        status: "FAILURE",
+      });
 
-    req.user = await user.toJSON();
+      if (!isPublicRoute) {
+        throw new AuthException("unauthorized", "auth");
+      }
+    }
+
+    req.user = await user?.toJSON();
 
     next();
   } catch (err) {
+    // If the error is not already handled, log it
+    if (!err.logged) {
+      try {
+        // Extract user ID from token if possible
+        let userId = "000000000000000000000000"; // Default placeholder
+        try {
+          const accessToken = req.cookies.accessToken;
+          if (accessToken) {
+            const payload = await verifyAccessToken(accessToken, {
+              ignoreExpiration: true,
+            });
+            if (payload && payload.sub) {
+              userId = payload.sub;
+            }
+          }
+        } catch (tokenErr) {
+          // Ignore token errors, just use the placeholder ID
+        }
+
+        await logAuditEvent({
+          user_id: userId,
+          event_type: "ACCESS_DENIED",
+          resource: "AUTHENTICATION",
+          endpoint: req.path,
+          details: {
+            method: req.method,
+            reason: err.message || "Authentication failed",
+            error: err.message,
+          },
+          ip_address: req.ip,
+          status: "FAILURE",
+        });
+
+        // Mark as logged to prevent duplicate logging
+        err.logged = true;
+      } catch (logErr) {
+        console.error("Failed to log authentication error:", logErr);
+      }
+    }
+
     next(err);
   }
 };
@@ -114,7 +176,25 @@ export const authorizeUser = async (req, permission_name) => {
       rolePermission = JSON.parse(rolePermission);
     }
 
-    if (!rolePermission) throw new AuthException("unauthorized", "auth");
+    if (!rolePermission) {
+      // Log permission denied
+      await logAuditEvent({
+        user_id: user._id,
+        event_type: "ACCESS_DENIED",
+        resource: "PERMISSION",
+        endpoint: req.path,
+        details: {
+          method: req.method,
+          permission_name,
+          role_name: role.role_name,
+          reason: "Permission not granted to role",
+        },
+        ip_address: req.ip,
+        status: "FAILURE",
+      });
+
+      throw new AuthException("unauthorized", "auth");
+    }
 
     return;
   } catch (err) {

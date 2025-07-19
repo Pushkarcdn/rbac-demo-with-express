@@ -9,6 +9,7 @@ import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 import httpContext from "express-http-context";
 import redisClient from "./src/lib/redis.js";
+import { startAuditQueueProcessor } from "./src/lib/auditLogger.js";
 
 import { connectDB } from "./src/configs/database.config.js";
 import routes from "./src/routes/index.js";
@@ -73,6 +74,9 @@ app.use((req, res, next) => {
 });
 
 connectDB();
+
+// Start the audit queue processor
+startAuditQueueProcessor();
 
 // Home GET route
 app.get("/", (req, res, next) => {

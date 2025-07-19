@@ -31,7 +31,7 @@ const verifyAccessToken = (token) => {
   return new Promise((resolve, reject) => {
     jwt.verify(token, jwtConfig.accessTokenSecret, (err, payload) => {
       if (err) {
-        throw new AuthException("unauthorized", "auth");
+        // throw new AuthException("unauthorized", "auth");
         // reject(new Error("Failed to verify access token!"));
         // return;
       }
