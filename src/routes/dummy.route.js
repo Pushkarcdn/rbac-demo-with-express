@@ -48,27 +48,35 @@ const setDummyData = async (req, res, next) => {
         _id: "68709d2a028408a5e7985d35",
         permission_name: "delete_finance_record",
       },
+      {
+        _id: "68709d2a028408a5e7985d36",
+        permission_name: "view_audit_logs",
+      },
     ]);
 
     // Inserting role_permissions associations
     await role_permissions.insertMany([
-      // Employee has create permission
+      // Employee
       {
         role_id: "68709cfeeb2e6c052bfd1579",
         permission_id: "68709d2a028408a5e7985d33",
       },
-      // Manager has edit permission
+      // Manager
       {
         role_id: "68709d09028408a5e7985d31",
         permission_id: "68709d2a028408a5e7985d34",
       },
-      // Admin has delete permission
+      // Admin
       {
-        role_id: "68709d063a2de9d12a67b138",
+        role_id: "68709d063a2de9d12a67b139",
         permission_id: "68709d2a028408a5e7985d35",
       },
+      {
+        role_id: "68709d063a2de9d12a67b139",
+        permission_id: "68709d2a028408a5e7985d36",
+      },
 
-      // everyone has view permission
+      // everyone
       {
         role_id: "68709cfeeb2e6c052bfd1579",
         permission_id: "68709d2a028408a5e7985d32",
@@ -78,7 +86,7 @@ const setDummyData = async (req, res, next) => {
         permission_id: "68709d2a028408a5e7985d32",
       },
       {
-        role_id: "68709d063a2de9d12a67b138",
+        role_id: "68709d063a2de9d12a67b139",
         permission_id: "68709d2a028408a5e7985d32",
       },
     ]);
