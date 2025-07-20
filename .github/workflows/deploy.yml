@@ -1,0 +1,68 @@
+name: Training Backend Deployment - Production
+
+on:
+  push:
+    branches: [production]
+
+env:
+  SERVER_IP: ${{ secrets.SERVER_IP }}
+  SSH_USER: ${{ secrets.SSH_USER }}
+  SSH_KEY: ${{ secrets.SSH_KEY }}
+  PROJECT_DIR: ~/projects/training-backend
+  PROJECT_NAME: training-backend
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_KEY }}
+          known_hosts: "just-a-placeholder-so-we-dont-get-errors"
+
+      - name: Create deployment package
+        run: |
+          # Create a tarball excluding node_modules and .next
+          tar --exclude='node_modules' --exclude='.next' --exclude='.git' -czf /tmp/${{ env.PROJECT_NAME }}.tar.gz .
+
+      - name: Copy files to VM
+        run: |
+          # Copy to VM
+          scp -o StrictHostKeyChecking=no /tmp/${{ env.PROJECT_NAME }}.tar.gz ${{ env.SSH_USER }}@${{ env.SERVER_IP }}:/tmp/${{ env.PROJECT_NAME }}.tar.gz
+
+      - name: Extract files on VM
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ env.SSH_USER }}@${{ env.SERVER_IP }} << 'EOF'
+          rm -rf ${{ env.PROJECT_DIR }}
+          mkdir -p ${{ env.PROJECT_DIR }}
+          tar -xzf /tmp/${{ env.PROJECT_NAME }}.tar.gz -C ${{ env.PROJECT_DIR }}
+          rm /tmp/${{ env.PROJECT_NAME }}.tar.gz
+          EOF
+
+      - name: Set up environment file
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ env.SSH_USER }}@${{ env.SERVER_IP }} << 'EOF'
+          cd ${{ env.PROJECT_DIR }}
+          echo "${{ secrets.APP_ENV }}" > .env.production
+          EOF
+
+      - name: Install dependencies
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ env.SSH_USER }}@${{ env.SERVER_IP }} << 'EOF'
+          cd ${{ env.PROJECT_DIR }}
+          npm install --omit=dev --no-audit
+          EOF
+
+      - name: Deploy with PM2
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ env.SSH_USER }}@${{ env.SERVER_IP }} << 'EOF'
+          cd ${{ env.PROJECT_DIR }}
+          pm2 delete ${{ env.PROJECT_NAME }} || true
+          pm2 start npm --name ${{ env.PROJECT_NAME }} -- start
+          pm2 save
+          EOF
