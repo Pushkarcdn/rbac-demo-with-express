@@ -37,6 +37,7 @@
     "nodemailer": "^7.0.3",
     "part": "^0.1.1",
     "redis": "^5.6.0",
+    "socket.io": "^4.8.1",
     "streamifier": "^0.1.1",
     "url": "^0.11.4"
   },

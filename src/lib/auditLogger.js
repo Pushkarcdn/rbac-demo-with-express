@@ -49,7 +49,7 @@ export const processAuditQueue = async () => {
 export const startAuditQueueProcessor = () => {
   // Process the queue every 5 seconds
   setInterval(processAuditQueue, 5000);
-  console.log("Audit queue processor starte!");
+  console.log("Audit queue processor started!");
 };
 
 export default {
