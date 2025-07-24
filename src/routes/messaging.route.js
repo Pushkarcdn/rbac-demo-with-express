@@ -1,8 +1,4 @@
-// Don't import io directly to avoid circular dependency
-// We'll get it from the app when the route is initialized
-
 export default (router) => {
-  // HTTP route to test WebSocket connection
   router.get("/websocket-test", (req, res) => {
     res.send({
       status: 200,
@@ -54,11 +50,22 @@ export default (router) => {
           });
         });
 
+        // Handle permissions-updated event (client can subscribe to this event)
+        socket.on("subscribe-to-permissions", () => {
+          console.log(`User ${socket.id} subscribed to permissions updates`);
+          socket.join("permissions-subscribers");
+        });
+
         // Handle disconnect
         socket.on("disconnect", () => {
           console.log("User disconnected:", socket.id);
         });
       });
+
+      // Setting up a interval to ensure connections stay alive
+      setInterval(() => {
+        io.emit("interval", { timestamp: new Date().toISOString() });
+      }, 30000);
     } catch (error) {
       console.error("Error setting up WebSocket handlers:", error);
     }

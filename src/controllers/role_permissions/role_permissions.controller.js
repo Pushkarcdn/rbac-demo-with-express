@@ -2,6 +2,7 @@ import successResponse from "../../utils/responses/successResponse.js";
 import models from "../../models/index.js";
 import { AuthException, ConflictException } from "../../exceptions/index.js";
 import { logAuditEvent } from "../../lib/auditLogger.js";
+import { notifyAllClients } from "../../utils/websocket/socketNotifier.js";
 
 const { role_permissions, roles, permissions } = models;
 
@@ -69,6 +70,16 @@ const createRolePermission = async (req, res, next) => {
       },
       ip_address: req.ip,
       status: "SUCCESS",
+    });
+
+    // Sending WebSocket notification
+    await notifyAllClients("permissions-updated", {
+      message: "Permissions updated",
+      action: "create",
+      roleId: req.body.role_id,
+      roleName: role?.role_name || "Unknown Role",
+      permissionId: req.body.permission_id,
+      permissionName: permission?.permission_name || "Unknown Permission",
     });
 
     // Clear Redis cache
@@ -272,6 +283,16 @@ const deleteRolePermission = async (req, res, next) => {
       },
       ip_address: req.ip,
       status: "SUCCESS",
+    });
+
+    // Sending WebSocket notification to all connected clients
+    await notifyAllClients("permissions-updated", {
+      message: "Permissions updated",
+      action: "delete",
+      roleId: rolePermission.role_id,
+      roleName: role?.role_name || "Unknown Role",
+      permissionId: rolePermission.permission_id,
+      permissionName: permission?.permission_name || "Unknown Permission",
     });
 
     // Clear Redis cache

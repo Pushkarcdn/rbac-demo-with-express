@@ -2,6 +2,7 @@ import app from "./app.js";
 import { server } from "./src/configs/env.config.js";
 import { createServer } from "http";
 import { Server } from "socket.io";
+import { setupWebSocketMiddleware } from "./src/middlewares/websocket.middleware.js";
 
 const httpServer = createServer(app);
 
@@ -12,6 +13,9 @@ export const io = new Server(httpServer, {
     credentials: true,
   },
 });
+
+// Set up WebSocket middleware for authentication and connection management
+setupWebSocketMiddleware(io);
 
 try {
   httpServer.listen(server.port, "0.0.0.0", (err) => {
