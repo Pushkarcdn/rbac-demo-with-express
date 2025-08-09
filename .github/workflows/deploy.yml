@@ -88,11 +88,12 @@ jobs:
             # make project directory if it doesn't exist
             mkdir -p ./projects/${{ env.PROJECT_NAME }}
 
-            # Update required files and directories
-            rm -f ./projects/${{ env.PROJECT_NAME }}/.env.production || true
-            rm -rf ./projects/${{ env.PROJECT_NAME }}/.env.production || true
-            echo "${{ env.APP_ENV }}" > ./projects/${{ env.PROJECT_NAME }}/.env.production
-            chmod 644 ./projects/${{ env.PROJECT_NAME }}/.env.production
+            # Update environment file
+            mkdir -p ./projects/${{ env.PROJECT_NAME }}/envs
+            rm -f ./projects/${{ env.PROJECT_NAME }}/envs/.env.production || true
+            rm -rf ./projects/${{ env.PROJECT_NAME }}/envs/.env.production || true
+            echo "${{ env.APP_ENV }}" > ./projects/${{ env.PROJECT_NAME }}/envs/.env.production
+            chmod 644 ./projects/${{ env.PROJECT_NAME }}/envs/.env.production
 
             # Deploy with compose
             sudo -A mv /tmp/docker-compose.yml /opt/${{ env.PROJECT_NAME }}/
