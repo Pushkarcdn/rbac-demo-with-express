@@ -48,7 +48,7 @@ pids
 # Stores VSCode versions used for testing VSCode extensions
 .vscode-test
 
-# yarn
+# yarn files
 .yarn/cache
 .yarn/unplugged
 .yarn/build-state.yml
