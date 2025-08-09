@@ -1,0 +1,17 @@
+version: "3.8"
+
+services:
+  app:
+    image: rbac-demo-with-express:latest
+    container_name: rbac-demo-with-express
+    restart: unless-stopped
+    ports:
+      - "4002:4002"
+    volumes:
+      - /envs/rbac-demo-with-express.env.production:/app/.env.production
+    networks:
+      - rbac-demo-with-express-network
+
+networks:
+  rbac-demo-with-express-network:
+    driver: bridge
