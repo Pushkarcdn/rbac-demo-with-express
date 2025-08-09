@@ -13,7 +13,7 @@ env:
   APP_ENV: ${{ secrets.APP_ENV }}
   NODE_ENV: production
   EXTERNAL_PORT: ${{ secrets.APP_PORT }}
-  INTERNAL_PORT: 4000
+  INTERNAL_PORT: ${{ secrets.APP_PORT }}
   WORKDIR: /app
 
 jobs:
