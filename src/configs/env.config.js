@@ -1,10 +1,19 @@
 import dotenv from "dotenv";
+import fs from "fs";
 
-console.log(process.env.NODE_ENV || "not present");
+// check if process.env.NODE_ENV file is present in the root directory or not
+const envFile = fs.existsSync(`.env.${process.env.NODE_ENV}`);
 
-dotenv.config({
-  path: `.env.${process.env.NODE_ENV}`,
-});
+console.log(envFile);
+
+if (envFile) {
+  dotenv.config({
+    path: `.env.${process.env.NODE_ENV}`,
+  });
+} else {
+  console.log(`.env.${process.env.NODE_ENV} file not found`);
+  process.exit(1);
+}
 
 // Server Configuration
 export const server = {
