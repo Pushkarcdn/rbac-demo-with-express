@@ -4,12 +4,13 @@ import fs from "fs";
 // check if process.env.NODE_ENV file is present in the root directory or not
 const envFile = fs.existsSync(`.env.${process.env.NODE_ENV}`);
 
-console.log(envFile);
-
 if (envFile) {
+  console.log(`Loading env file from: .env.${process.env.NODE_ENV}`);
   dotenv.config({
     path: `.env.${process.env.NODE_ENV}`,
   });
+  console.log(process.env.NODE_ENV);
+  console.log(process.env.BACKEND_URL);
 } else {
   console.log(`.env.${process.env.NODE_ENV} file not found`);
   process.exit(1);
