@@ -1,5 +1,7 @@
 import dotenv from "dotenv";
 
+console.log(process.env.NODE_ENV || "not present");
+
 dotenv.config({
   path: `.env.${process.env.NODE_ENV}`,
 });
