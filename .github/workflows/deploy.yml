@@ -89,6 +89,8 @@ jobs:
             mkdir -p ./envs
             rm -rf ./envs/${{ env.PROJECT_NAME }}.env.production || true
             rm -f ./envs/${{ env.PROJECT_NAME }}.env.production || true
+            # Ensure we're creating a file, not a directory
+            touch ./envs/${{ env.PROJECT_NAME }}.env.production
             echo "${{ env.APP_ENV }}" > ./envs/${{ env.PROJECT_NAME }}.env.production
             chmod 644 ./envs/${{ env.PROJECT_NAME }}.env.production
 
