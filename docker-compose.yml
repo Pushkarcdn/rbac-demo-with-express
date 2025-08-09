@@ -8,7 +8,10 @@ services:
     environment:
       - NODE_ENV=production
     volumes:
-      - ~/envs/rbac-demo-with-express.env.production:/app/.env.production
+      - type: bind
+        source: ~/envs/rbac-demo-with-express.env.production
+        target: /app/.env.production
+        read_only: true
     networks:
       - rbac-demo-with-express-network
 
