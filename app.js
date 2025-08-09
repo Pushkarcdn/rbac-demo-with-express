@@ -49,7 +49,7 @@ if (
 } else {
   app.use(
     cors({
-      origin: frontend.url,
+      origin: true,
       credentials: true,
       methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     }),
