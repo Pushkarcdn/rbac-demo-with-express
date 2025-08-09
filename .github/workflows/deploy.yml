@@ -87,7 +87,7 @@ jobs:
 
             # Update environment file
             sudo -A mkdir -p /envs
-            sudo -A bash -c 'echo "${{ env.APP_ENV }}" > /envs/${{ env.PROJECT_NAME }}.env.production'
+            sudo -A echo "${{ env.APP_ENV }}" > /envs/${{ env.PROJECT_NAME }}.env.production
             sudo -A chown $USER:$USER /envs/${{ env.PROJECT_NAME }}.env.production
             sudo -A chmod 644 /envs/${{ env.PROJECT_NAME }}.env.production
 
