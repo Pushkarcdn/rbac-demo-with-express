@@ -5,6 +5,8 @@ services:
     restart: unless-stopped
     ports:
       - "4002:4002"
+    environment:
+      - NODE_ENV=production
     volumes:
       - ~/envs/rbac-demo-with-express.env.production:/app/.env.production
     networks:
