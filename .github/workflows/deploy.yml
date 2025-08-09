@@ -71,6 +71,12 @@ jobs:
             export SUDO_ASKPASS=/tmp/askpass.sh
             export WORKDIR=${{ env.WORKDIR }}
 
+            # remove old container if it exists
+            sudo -A docker rm -f ${{ env.PROJECT_NAME }} 2>/dev/null || true
+
+            # remove old image if it exists
+            sudo -A docker rmi ${{ env.PROJECT_NAME }}:latest 2>/dev/null || true
+
             # Create and configure application directory
             sudo -A mkdir -p /opt/${{ env.PROJECT_NAME }}
             sudo -A chown $USER:$USER /opt/${{ env.PROJECT_NAME }}
@@ -81,7 +87,7 @@ jobs:
 
             # Update environment file
             sudo -A mkdir -p /envs
-            echo '${{ env.APP_ENV }}' > /envs/${{ env.PROJECT_NAME }}.env.production
+            sudo -A echo '${{ env.APP_ENV }}' > /envs/${{ env.PROJECT_NAME }}.env.production
 
             # Deploy with compose
             sudo -A mv /tmp/docker-compose.yml /opt/${{ env.PROJECT_NAME }}/
