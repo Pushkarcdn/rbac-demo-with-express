@@ -86,11 +86,11 @@ jobs:
             sudo -A docker load -i /tmp/${{ env.PROJECT_NAME }}-temp-app.tar
 
             # Update environment file
-            mkdir -p ~/envs
-            rm -rf ~/envs/${{ env.PROJECT_NAME }}.env.production || true
-            rm -f ~/envs/${{ env.PROJECT_NAME }}.env.production || true
-            echo "${{ env.APP_ENV }}" > ~/envs/${{ env.PROJECT_NAME }}.env.production
-            chmod 644 ~/envs/${{ env.PROJECT_NAME }}.env.production
+            mkdir -p ./envs
+            rm -rf ./envs/${{ env.PROJECT_NAME }}.env.production || true
+            rm -f ./envs/${{ env.PROJECT_NAME }}.env.production || true
+            echo "${{ env.APP_ENV }}" > ./envs/${{ env.PROJECT_NAME }}.env.production
+            chmod 644 ./envs/${{ env.PROJECT_NAME }}.env.production
 
             # Deploy with compose
             sudo -A mv /tmp/docker-compose.yml /opt/${{ env.PROJECT_NAME }}/
