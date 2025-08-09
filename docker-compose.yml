@@ -6,7 +6,7 @@ services:
     ports:
       - "4002:4002"
     volumes:
-      - /envs/rbac-demo-with-express.env.production:/app/
+      - /envs/rbac-demo-with-express.env.production:/app/.env.production
     networks:
       - rbac-demo-with-express-network
 
