@@ -1,69 +1,100 @@
-name: Training Backend Deployment - Production
+name: RBAC Demo Backend Deployment
 
 on:
   push:
     branches: [main]
 
 env:
+  PROJECT_NAME: rbac-demo-with-express
   SERVER_IP: ${{ secrets.SERVER_IP }}
   SSH_USER: ${{ secrets.SSH_USER }}
   SSH_KEY: ${{ secrets.SSH_KEY }}
+  SERVER_PASS: ${{ secrets.SERVER_PASS }}
   APP_ENV: ${{ secrets.APP_ENV }}
-  PROJECT_DIR: ~/projects/training-backend
-  PROJECT_NAME: training-backend
+  NODE_ENV: production
+  EXTERNAL_PORT: ${{ secrets.APP_PORT }}
+  INTERNAL_PORT: 4000
+  WORKDIR: /app
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install SSH key
+      - name: Set up SSH
         uses: shimataro/ssh-key-action@v2
         with:
           key: ${{ env.SSH_KEY }}
           known_hosts: "just-a-placeholder-so-we-dont-get-errors"
+          config: |
+            Host target
+              HostName ${{ env.SERVER_IP }}
+              User ${{ env.SSH_USER }}
+              StrictHostKeyChecking no
 
-      - name: Create deployment package
-        run: |
-          # Create a tarball excluding node_modules and .next
-          tar --exclude='node_modules' --exclude='.next' --exclude='.git' -czf /tmp/${{ env.PROJECT_NAME }}.tar.gz .
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v3
+        with:
+          install: true
+          platforms: linux/arm64
 
-      - name: Copy files to VM
+      - name: Build Node Docker image
         run: |
-          # Copy to VM
-          scp -o StrictHostKeyChecking=no /tmp/${{ env.PROJECT_NAME }}.tar.gz ${{ env.SSH_USER }}@${{ env.SERVER_IP }}:/tmp/${{ env.PROJECT_NAME }}.tar.gz
+          docker buildx build \
+            --platform linux/arm64 \
+            --file Dockerfile \
+            --load \
+            -t ${{ env.PROJECT_NAME }}:latest \
+            --build-arg WORKDIR="${{ env.WORKDIR }}" \
+            --build-arg NODE_ENV="${{ env.NODE_ENV }}" \
+            --build-arg INTERNAL_PORT="${{ env.INTERNAL_PORT }}" \
+            .
 
-      - name: Extract files on VM
+      - name: Save Docker image
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ env.SSH_USER }}@${{ env.SERVER_IP }} << 'EOF'
-          rm -rf ${{ env.PROJECT_DIR }}
-          mkdir -p ${{ env.PROJECT_DIR }}
-          tar -xzf /tmp/${{ env.PROJECT_NAME }}.tar.gz -C ${{ env.PROJECT_DIR }}
-          rm /tmp/${{ env.PROJECT_NAME }}.tar.gz
-          EOF
+          docker save -o /tmp/${{ env.PROJECT_NAME }}-temp-app.tar ${{ env.PROJECT_NAME }}:latest
 
-      - name: Set up environment file
+      - name: Deploy to server
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ env.SSH_USER }}@${{ env.SERVER_IP }} << 'EOF'
-          cd ${{ env.PROJECT_DIR }}
-          echo "${{ env.APP_ENV }}" > .env.production
-          EOF
+          scp /tmp/${{ env.PROJECT_NAME }}-temp-app.tar target:/tmp/${{ env.PROJECT_NAME }}-temp-app.tar
 
-      - name: Install dependencies
-        run: |
-          ssh -o StrictHostKeyChecking=no ${{ env.SSH_USER }}@${{ env.SERVER_IP }} << 'EOF'
-          cd ${{ env.PROJECT_DIR }}
-          npm install --omit=dev --no-audit
-          EOF
+          ssh target "bash -s" << 'EOF'
+            # Create password script for sudo
+            echo '#!/bin/bash
+            echo "${{ env.SERVER_PASS }}"' > /tmp/askpass.sh
+            chmod +x /tmp/askpass.sh
+            
+            # Set environment variables
+            export SUDO_ASKPASS=/tmp/askpass.sh
+            export WORKDIR=${{ env.WORKDIR }}
 
-      - name: Deploy with PM2
-        run: |
-          ssh -o StrictHostKeyChecking=no ${{ env.SSH_USER }}@${{ env.SERVER_IP }} << 'EOF'
-          cd ${{ env.PROJECT_DIR }}
-          pm2 delete ${{ env.PROJECT_NAME }} || true
-          pm2 start npm --name ${{ env.PROJECT_NAME }} -- start
-          pm2 save
+            # Stop and remove existing container if it exists
+            sudo -A docker rm -f ${{ env.PROJECT_NAME }} 2>/dev/null || true
+
+            # Remove old image if it exists
+            sudo -A docker rmi ${{ env.PROJECT_NAME }}:latest 2>/dev/null || true
+
+            # Load Docker image
+            sudo -A docker load -i /tmp/${{ env.PROJECT_NAME }}-temp-app.tar
+
+            # Ensure network exists
+            sudo -A docker network create ${{ env.PROJECT_NAME }}-network 2>/dev/null || true
+
+            # Create environment file on server
+            echo '${{ env.APP_ENV }}' > /tmp/${{ env.PROJECT_NAME }}.env.production
+
+            # Run new node container
+            sudo -A docker run -d \
+              --name "${{ env.PROJECT_NAME }}" \
+              --network "${{ env.PROJECT_NAME }}-network" \
+              -p "${{ env.EXTERNAL_PORT }}:${{ env.INTERNAL_PORT }}" \
+              -v /tmp/${{ env.PROJECT_NAME }}.env.production:${{ env.WORKDIR }}/.env.production \
+              "${{ env.PROJECT_NAME }}:latest"
+
+            # Clean up
+            sudo -A rm -f /tmp/${{ env.PROJECT_NAME }}-temp-app.tar
+            rm -f /tmp/${{ env.PROJECT_NAME }}.env.production
+            rm -f /tmp/askpass.sh
           EOF

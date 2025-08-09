@@ -22,11 +22,11 @@
 
 1. Clone the project:
 
-   `git clone https://github.com/Pushkarcdn/pushkar-training.git`
+   `git clone https://github.com/Pushkarcdn/rbac-demo-with-express.git`
 
 2. Go to to the project's root directory
 
-   `cd pushkar-training`
+   `cd rbac-demo-with-express`
 
 3. Copy the env file at project root
 
@@ -76,7 +76,7 @@ The authentication flow consists of the following steps:
 ### Api base url:
 
 ```json
-"https://training.pushkar.live"
+"https://rbac-demo.pushkar.live"
 ```
 
 #### 1. Create a Role
