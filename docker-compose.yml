@@ -1,17 +1,13 @@
+x-project: &project_name rbac-demo-with-express
+
 services:
   app:
-    image: rbac-demo-with-express:latest
-    container_name: rbac-demo-with-express
+    image: *project_name:latest
+    container_name: *project_name
     restart: unless-stopped
-    ports:
-      - "4002:4002"
+    network_mode: host
     environment:
       - NODE_ENV=production
     volumes:
       - ./.env.production:/app/.env.production:ro
-    networks:
-      - rbac-demo-with-express-network
-
-networks:
-  rbac-demo-with-express-network:
-    driver: bridge
+      
