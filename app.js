@@ -83,7 +83,7 @@ app.get("/", (req, res, next) => {
   try {
     res.send({
       status: 200,
-      message: `The RBAC Demo with Express is up!`,
+      message: `The RBAC Demo with Express is active!`,
       source: "/ [GET]",
     });
   } catch (error) {

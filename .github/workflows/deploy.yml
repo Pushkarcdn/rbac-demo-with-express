@@ -87,7 +87,7 @@ jobs:
             mv /tmp/docker-compose.yml ./projects/${{ env.PROJECT_NAME }}/
             cd ./projects/${{ env.PROJECT_NAME }}
             docker compose up -d --force-recreate
-            sudo ufw allow ${{ env.EXTERNAL_PORT }}
+            echo "${{ secrets.SERVER_SUDO_PASSWORD }}" | sudo -S ufw allow ${{ env.EXTERNAL_PORT }}
 
             # Cleanup
             rm -f /tmp/${{ env.PROJECT_NAME }}-temp-app.tar
