@@ -9,6 +9,8 @@ services:
       - NODE_ENV=production
     env_file:
       - .env.production
+    volumes:
+      - ./.env.production:/app/.env.production:ro
     networks:
       - rbac-demo-with-express-network
 
