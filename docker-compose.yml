@@ -7,8 +7,6 @@ services:
       - "4002:4002"
     environment:
       - NODE_ENV=production
-    env_file:
-      - .env.production
     volumes:
       - ./.env.production:/app/.env.production:ro
     networks:
