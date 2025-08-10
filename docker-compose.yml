@@ -1,13 +1,10 @@
-x-project: &project_name rbac-demo-with-express
-
 services:
   app:
-    image: *project_name:latest
-    container_name: *project_name
+    image: rbac-demo-with-express:latest
+    container_name: rbac-demo-with-express
     restart: unless-stopped
     network_mode: host
     environment:
       - NODE_ENV=production
     volumes:
       - ./.env.production:/app/.env.production:ro
-      
