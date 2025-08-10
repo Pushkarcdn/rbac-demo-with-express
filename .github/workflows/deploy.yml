@@ -62,19 +62,12 @@ jobs:
           scp docker-compose.yml target:/tmp/
 
           ssh target "bash -s" << 'EOF'
-            # Create password script for sudo
-            echo '#!/bin/bash
-            echo "${{ env.SERVER_PASS }}"' > /tmp/askpass.sh
-            chmod +x /tmp/askpass.sh
-            
-            # Set environment variables
-            export SUDO_ASKPASS=/tmp/askpass.sh
             export WORKDIR=${{ env.WORKDIR }}
 
             # Create and configure application directory
-            sudo -A mkdir -p ./projects/${{ env.PROJECT_NAME }}
-            sudo -A chown $USER:$USER ./projects/${{ env.PROJECT_NAME }}
-            sudo -A chmod 755 ./projects/${{ env.PROJECT_NAME }} 
+            mkdir -p ./projects/${{ env.PROJECT_NAME }}
+            chown $USER:$USER ./projects/${{ env.PROJECT_NAME }}
+            chmod 755 ./projects/${{ env.PROJECT_NAME }} 
 
             # Update environment file
             rm -rf ./projects/${{ env.PROJECT_NAME }}/.env.production || true
@@ -82,21 +75,20 @@ jobs:
             chmod 644 ./projects/${{ env.PROJECT_NAME }}/.env.production  
 
             # remove old container if it exists
-            sudo -A docker rm -f ${{ env.PROJECT_NAME }} 2>/dev/null || true
+            docker rm -f ${{ env.PROJECT_NAME }} 2>/dev/null || true
 
             # remove old image if it exists
-            sudo -A docker rmi -f ${{ env.PROJECT_NAME }}:latest 2>/dev/null || true
+            docker rmi -f ${{ env.PROJECT_NAME }}:latest 2>/dev/null || true
 
             # Load new image
-            sudo -A docker load -i /tmp/${{ env.PROJECT_NAME }}-temp-app.tar   
+            docker load -i /tmp/${{ env.PROJECT_NAME }}-temp-app.tar   
 
             # Deploy with compose
-            sudo -A mv /tmp/docker-compose.yml ./projects/${{ env.PROJECT_NAME }}/
+            mv /tmp/docker-compose.yml ./projects/${{ env.PROJECT_NAME }}/
             cd ./projects/${{ env.PROJECT_NAME }}
-            sudo -A docker compose up -d --force-recreate
+            docker compose up -d --force-recreate
             sudo ufw allow ${{ env.EXTERNAL_PORT }}
 
             # Cleanup
-            sudo -A rm -f /tmp/${{ env.PROJECT_NAME }}-temp-app.tar
-            rm -f /tmp/askpass.sh
+            rm -f /tmp/${{ env.PROJECT_NAME }}-temp-app.tar
           EOF
