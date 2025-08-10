@@ -97,6 +97,7 @@ jobs:
 
             # Deploy with compose
             sudo -A mv /tmp/docker-compose.yml /opt/${{ env.PROJECT_NAME }}/
+            sudo -A cp ./projects/${{ env.PROJECT_NAME }}/envs/.env.production /opt/${{ env.PROJECT_NAME }}/
             cd /opt/${{ env.PROJECT_NAME }}
             sudo -A docker compose up -d --force-recreate
 

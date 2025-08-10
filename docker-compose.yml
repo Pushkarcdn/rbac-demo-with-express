@@ -7,8 +7,8 @@ services:
       - "4002:4002"
     environment:
       - NODE_ENV=production
-    volumes:
-      - ./projects/rbac-demo-with-express/envs/.env.production:/.env.production:ro
+    env_file:
+      - ./env.production
     networks:
       - rbac-demo-with-express-network
 
