@@ -80,24 +80,19 @@ jobs:
             # Create and configure application directory
             sudo -A mkdir -p /opt/${{ env.PROJECT_NAME }}
             sudo -A chown $USER:$USER /opt/${{ env.PROJECT_NAME }}
-            sudo -A chmod 755 /opt/${{ env.PROJECT_NAME }}            
+            sudo -A chmod 755 /opt/${{ env.PROJECT_NAME }}    
+
+            # Update environment file
+            rm -f /opt/${{ env.PROJECT_NAME }}/.env.production || true
+            rm -rf /opt/${{ env.PROJECT_NAME }}/.env.production || true
+            echo "${{ env.APP_ENV }}" > /opt/${{ env.PROJECT_NAME }}/.env.production
+            chmod 644 /opt/${{ env.PROJECT_NAME }}/.env.production        
 
             # Load new image
             sudo -A docker load -i /tmp/${{ env.PROJECT_NAME }}-temp-app.tar
 
-            # make project directory if it doesn't exist
-            mkdir -p ./projects/${{ env.PROJECT_NAME }}
-
-            # Update environment file
-            mkdir -p ./projects/${{ env.PROJECT_NAME }}/envs
-            rm -f ./projects/${{ env.PROJECT_NAME }}/envs/.env.production || true
-            rm -rf ./projects/${{ env.PROJECT_NAME }}/envs/.env.production || true
-            echo "${{ env.APP_ENV }}" > ./projects/${{ env.PROJECT_NAME }}/envs/.env.production
-            chmod 644 ./projects/${{ env.PROJECT_NAME }}/envs/.env.production
-
             # Deploy with compose
             sudo -A mv /tmp/docker-compose.yml /opt/${{ env.PROJECT_NAME }}/
-            sudo -A cp ./projects/${{ env.PROJECT_NAME }}/envs/.env.production /opt/${{ env.PROJECT_NAME }}/
             cd /opt/${{ env.PROJECT_NAME }}
             sudo -A docker compose up -d --force-recreate
 
