@@ -8,12 +8,11 @@ env:
   PROJECT_NAME: rbac-demo-with-express
   SERVER_IP: ${{ secrets.SERVER_IP }}
   SSH_USER: ${{ secrets.SSH_USER }}
-  SSH_KEY: ${{ secrets.SSH_KEY }}
   SERVER_PASS: ${{ secrets.SERVER_PASS }}
   APP_ENV: ${{ secrets.APP_ENV }}
   NODE_ENV: production
-  EXTERNAL_PORT: ${{ secrets.APP_PORT }}
-  INTERNAL_PORT: ${{ secrets.APP_PORT }}
+  EXTERNAL_PORT: 4002
+  INTERNAL_PORT: 4002
   WORKDIR: /app
 
 jobs:
@@ -23,16 +22,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up SSH
-        uses: shimataro/ssh-key-action@v2
-        with:
-          key: ${{ env.SSH_KEY }}
-          known_hosts: "just-a-placeholder-so-we-dont-get-errors"
-          config: |
-            Host target
-              HostName ${{ env.SERVER_IP }}
-              User ${{ env.SSH_USER }}
-              StrictHostKeyChecking no
+      - name: Install sshpass
+        run: |
+          if ! command -v sshpass &> /dev/null; then
+            sudo apt update && sudo apt install sshpass -y
+          else
+            echo "sshpass is already installed"
+          fi
 
       - name: Set up Docker
         uses: docker/setup-buildx-action@v3
@@ -58,37 +54,49 @@ jobs:
 
       - name: Deploy to server
         run: |
-          scp /tmp/${{ env.PROJECT_NAME }}-temp-app.tar target:/tmp/
-          scp docker-compose.yml target:/tmp/
+          sshpass -p "${{ env.SERVER_PASS }}" scp -o StrictHostKeyChecking=no /tmp/${{ env.PROJECT_NAME }}-temp-app.tar ${{ env.SSH_USER }}@${{ env.SERVER_IP }}:/tmp/
+          sshpass -p "${{ env.SERVER_PASS }}" scp -o StrictHostKeyChecking=no docker-compose.yml ${{ env.SSH_USER }}@${{ env.SERVER_IP }}:/tmp/
 
-          ssh target "bash -s" << 'EOF'
+          sshpass -p "${{ env.SERVER_PASS }}" ssh -o StrictHostKeyChecking=no ${{ env.SSH_USER }}@${{ env.SERVER_IP }} "bash -s" << 'EOF'
+            # Create password script for sudo
+            echo '#!/bin/bash
+            echo "${{ env.SERVER_PASS }}"' > /tmp/askpass.sh
+            chmod +x /tmp/askpass.sh
+
+            # Set environment variables
+            export SUDO_ASKPASS=/tmp/askpass.sh
             export WORKDIR=${{ env.WORKDIR }}
 
             # Create and configure application directory
-            mkdir -p ./projects/${{ env.PROJECT_NAME }}
-            chown $USER:$USER ./projects/${{ env.PROJECT_NAME }}
-            chmod 755 ./projects/${{ env.PROJECT_NAME }} 
+            sudo -A mkdir -p ./projects/${{ env.PROJECT_NAME }}
+            sudo -A chown $USER:$USER ./projects/${{ env.PROJECT_NAME }}
+            sudo -A chmod 755 ./projects/${{ env.PROJECT_NAME }} 
 
             # Update environment file
-            rm -rf ./projects/${{ env.PROJECT_NAME }}/.env.production || true
-            echo "${{ env.APP_ENV }}" > ./projects/${{ env.PROJECT_NAME }}/.env.production
-            chmod 644 ./projects/${{ env.PROJECT_NAME }}/.env.production  
+            sudo -A rm -rf ./projects/${{ env.PROJECT_NAME }}/.env.production || true
+            sudo -A echo "${{ env.APP_ENV }}" > ./projects/${{ env.PROJECT_NAME }}/.env.production
+            sudo -A chmod 644 ./projects/${{ env.PROJECT_NAME }}/.env.production  
 
             # remove old container if it exists
-            docker rm -f ${{ env.PROJECT_NAME }} 2>/dev/null || true
+            sudo -A docker rm -f ${{ env.PROJECT_NAME }} 2>/dev/null || true
 
             # remove old image if it exists
-            docker rmi -f ${{ env.PROJECT_NAME }}:latest 2>/dev/null || true
+            sudo -A docker rmi -f ${{ env.PROJECT_NAME }}:latest 2>/dev/null || true
 
             # Load new image
-            docker load -i /tmp/${{ env.PROJECT_NAME }}-temp-app.tar   
+            sudo -A docker load -i /tmp/${{ env.PROJECT_NAME }}-temp-app.tar
+
+            # kill the port if it is in use
+            sudo -A kill -9 $(sudo -A lsof -t -i :${{ env.EXTERNAL_PORT }}) 2>/dev/null || true
 
             # Deploy with compose
-            mv /tmp/docker-compose.yml ./projects/${{ env.PROJECT_NAME }}/
+            sudo -A mv /tmp/docker-compose.yml ./projects/${{ env.PROJECT_NAME }}/
             cd ./projects/${{ env.PROJECT_NAME }}
-            docker compose up -d --force-recreate
-            echo "${{ env.SERVER_PASS }}" | sudo -S ufw allow ${{ env.EXTERNAL_PORT }}
+            sudo -A docker compose up -d --force-recreate
+            sudo -A ufw allow ${{ env.EXTERNAL_PORT }}
 
             # Cleanup
-            rm -f /tmp/${{ env.PROJECT_NAME }}-temp-app.tar
+            sudo -A rm -f /tmp/${{ env.PROJECT_NAME }}-temp-app.tar
+            rm -f /tmp/askpass.sh
           EOF
+          
